@@ -74,11 +74,11 @@ class TVPL_Spider:
 if __name__=="__main__":
     print u"""
     #------------------------------------------------------------------------------
-    #   写着玩儿，出问题概不负责，最好爬完之后更官网粗略核对。觉得方便，可以请我喝酒。
-    #   请勿用于其他用途。
+    #   写着玩儿，出问题概不负责，最好爬完之后更官网粗略核对。
+    #   请勿用于其他用途。觉得方便，可以请我喝酒。
     #   Copyright Reserved by authors.
     #   2.0.0版本。大改动，爬取源更换成电视猫,同时利用模板直接生成Excel。
-    #   如有建议，请发邮件 Sgang19890818@gmail.com，或自行去GitHub修改源码。
+    #   如有建议，请发邮件 Sgang19890818@Gmail.com，或自行去GitHub修改源码。
     #   A spider for Catch TV Progam List.
     #   作者：老宋 平生多磨砺，男儿自横行。
     #   https://github.com/SongJLG/TVPL_Spider/
