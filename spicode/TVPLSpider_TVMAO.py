@@ -14,13 +14,13 @@ class TVPL_Spider:
                         "5":u"凤凰卫视中文台", "6":u"澳亚卫视"}                                          #需要爬取的电视台
                        
         self.ch_id = {"1":"TVB-TVB1", "2":"TVB-TVB2", "3":"HKATV-HKATV2",
-                       "4":"HKATV-HKATV1","5":"PHOENIX-PHOENIX1", "6":"MASTV-MASTV1"}                  #对应电视台的URL代码
+                       "4":"HKATV-HKATV1", "5":"PHOENIX-PHOENIX1", "6":"MASTV-MASTV1"}                  #对应电视台的URL代码
         
         self.mould_xls = {"1":"TVB_FC_mould.xls", "2":"TVB_MZ_mould.xls", "3":"HKATV_GJ_mould.xls",
-                          "4":"HKATV_BG_mould","5":"IFENG_WS_mould.xls", "6":"MASTV_AY_mould.xls"}     #对应的Excel模板
+                          "4":"HKATV_BG_mould.xls", "5":"IFENG_WS_mould.xls", "6":"MASTV_AY_mould.xls"}     #对应的Excel模板
         
         self.Done_xls = {"1":"TVB_FC_Done.xls", "2":"TVB_MZ_Done.xls", "3":"HKATV_GJ_Done.xls", 
-                          "4":"HKATV_BG_Done","5":"IFENG_WS_Done.xls", "6":"MASTV_AY_Done.xls"}        #对应的Excel完成文件
+                          "4":"HKATV_BG_Done.xls", "5":"IFENG_WS_Done.xls", "6":"MASTV_AY_Done.xls"}        #对应的Excel完成文件
                           
         self.style_flag = 0             #Excle写入Style标记
         self.qula = 0                   #Excle写入数量统计
@@ -33,7 +33,7 @@ class TVPL_Spider:
         style_0 = xlwt.easyxf('pattern: pattern solid, fore_colour pale_blue; font: bold on;')        #两种写入Style
         style_1 = xlwt.easyxf('font: bold on;')
 
-        for i in range(8, 13):
+        for i in range(8, 15):
             postdata = urllib.urlencode({ 'email':'786755516@qq.com', 'pwd':'1q2w3e', 'ek':'MTQ1NzE1ODM5OTEzMQ=='})    #模拟登陆，绕开电视猫的反爬虫机制
             url = 'http://www.tvmao.com/program_favorite/' + self.ch_id[self.Select] + '-w' + str(i) + '.html'
             headers = {'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1;en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}  #伪装浏览器访问
