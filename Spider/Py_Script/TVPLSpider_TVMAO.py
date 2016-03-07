@@ -13,18 +13,19 @@ def st():
     #------------------------------------------------------------------------
     #   写着玩儿。请勿用于其他用途。如果觉得方便，可以请我喝酒。
     #   Copyright Reserved by authors.
-    #   2.0.0版本。大改动，爬取源更换成电视猫,同时利用模板直接生成Excel。
+    #   2.0.1版本。添加选择范围，不再固定起止URL。增加大家的使用自由度。
+    #   上一版本：2.0.0版本。大改动，爬取源更换成电视猫,同时利用模板直接生成Excel。
     #   如有建议，请发邮件 Sgang19890818@Gmail.com，或自行去GitHub修改源码。
     #   A spider for Catch TV Progam List.
     #   作者：老宋 平生多磨砺，男儿自横行。
     #   https://github.com/SongJLG/TVPL_Spider/
-    #   Date: 2016-03-05
+    #   该版本发布 Date: 2016-03-07
     #-------------------------------------------------------------------------
     """
     
     print u"你可以在命令行后输入数字(1-6)来选择频道"
     print u"通过在命令行后键入help获取频道列表"
-    Select = str(raw_input())
+    Select = str(raw_input('Select Channel Num:'))
     mySpider = TVPL_Spider(Select)
     mySpider.start()
 
@@ -44,16 +45,19 @@ class TVPL_Spider:
                           
         self.style_flag = 0             #Excle写入Style标记
         self.qula = 0                   #Excle写入数量统计
-        self.Select = Select            
+        self.Select = Select
         
     def spider(self):
         old_wb = xlrd.open_workbook(self.mould_xls[self.Select], formatting_info = True)              #保留格式打开模板（貌似颜色被干掉，没保留）
         new_wb = copy(old_wb)                                                                         #复制一份模板
         new_ws = new_wb.get_sheet(0)
         style_0 = xlwt.easyxf('pattern: pattern solid, fore_colour pale_blue; font: bold on;')        #两种写入Style
-        style_1 = xlwt.easyxf('font: bold on;')
+        style_1 = xlwt.easyxf('font: bold on;')     
+        start_num = input('Start URL Num:')                                                           #键入爬取URL起止编号
+        end_num = input('End URL Num:') 
+        print u"正在获取节目单，请稍后..."
 
-        for i in range(7, 14):                                                          #由于电视猫周日只更新到下周六，所以爬取本周日为第一天，截止到下周六
+        for i in range(start_num, end_num+1):
             postdata = urllib.urlencode({ 'email':'786755516@qq.com', 'pwd':'1q2w3e', 'ek':'MTQ1NzE1ODM5OTEzMQ=='})    #模拟登陆，绕开电视猫的反爬虫机制
             url = 'http://www.tvmao.com/program_favorite/' + self.ch_id[self.Select] + '-w' + str(i) + '.html'
             headers = {'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1;en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}  #伪装浏览器访问
@@ -92,7 +96,6 @@ class TVPL_Spider:
         
         else:
             print u"你选择了"+"%3s" %self.channel[self.Select]
-            print u"正在获取节目单，请稍后..."
             self.spider()
 
 if __name__=="__main__":
