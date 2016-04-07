@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import *
+import datetime
 import urllib
 import urllib2
 from bs4 import BeautifulSoup
@@ -13,13 +13,14 @@ def st():
     #------------------------------------------------------------------------
     #   写着玩儿。请勿用于其他用途。如果觉得方便，可以请我喝酒。
     #   Copyright Reserved by authors.
-    #   2.1.0版本。加入官网作为爬取源，EXCEL多页显示。不需要输入直接生成。
+    #   2.1.1版本 加入日期支持
+    #   上一版2.1.0 加入官网作为爬取源，EXCEL多页显示。不需要输入直接生成。
     #   请务必在周日使用，否则爬取内容会出错。请务必使PC本地日期正确。
     #   如有建议，请发邮件 Sgang19890818@Gmail.com，或自行去GitHub修改源码。
     #   A spider for Catch TV Progam List.
     #   作者：老宋 平生多磨砺，男儿自横行。
     #   https://github.com/SongJLG/TVPL_Spider/
-    #   该版本发布 Date: 2016-04-05
+    #   该版本发布 Date: 2016-04-07
     #-------------------------------------------------------------------------
     """
     
@@ -38,16 +39,24 @@ class TVPL_Spider:
     def __init__(self, Select, new_wb):
         self.channel = {"1":u"翡翠台", "2":u"明珠台", "3":u"凤凰卫视中文台", "4":u"澳亚卫视"}                                          #需要爬取的电视台
                        
-        self.ch_id = {"1":"TVB-TVB1", "2":"TVB-TVB2", "3":"PHOENIX-PHOENIX1", "4":"MASTV-MASTV1"}                  #对应电视台的URL代码
+        self.ch_id = {"1":"TVB-TVB1", "2":"TVB-TVB2", "3":"PHOENIX-PHOENIX1", "4":"MASTV-MASTV1"}                                   #对应电视台的URL代码
         
-        self.style_flag = 0             #Excle写入Style标记
+        self.week_id = {0 :u"周一 Mon", 1 :u"周二 Tues", 2 :u"周三 Wed",  3 :u"周四 Thu",                     
+                        4 :u"周五 Fri", 5 :u"周六 Sat", 6 :u"周日 Sun"}                                                              #日期对应的周几
+        
+        self.style_flag = True             #Excle写入Style标记 布尔型
         self.qula = 0                   #Excle写入数量统计
         self.Select = Select
+        self.today = datetime.date.today()
         self.new_wb = new_wb
-        
         self.sheet_num = int(Select) -1
-        self.style_0 = xlwt.easyxf('pattern: pattern solid, fore_colour pale_blue; font: bold on;')        #两种写入Style
+        
+        self.style_0 = xlwt.easyxf('pattern: pattern solid, fore_colour pale_blue; font: bold on;')        #三种写入Style
+        
         self.style_1 = xlwt.easyxf('font: bold on;')
+        
+        self.style_date = xlwt.easyxf('pattern: pattern solid, fore_colour gray_ega; font: bold on; align: horiz center;')
+        self.style_date.num_format_str = 'yyyy-mm-d'
         
     def spider_tvm(self):
         new_ws = self.new_wb.get_sheet(self.sheet_num)
@@ -63,17 +72,25 @@ class TVPL_Spider:
             soup = BeautifulSoup(content,"lxml")
             tags = soup.find(attrs={"class": "epg mt10 mb10"}).find_all("li")
             length = len(tags)
+            
+            date_sel = self.today + datetime.timedelta(i-7)
+            week_day = date_sel.weekday()
+            new_ws.write(self.qula+2, 0, self.week_id[week_day], self.style_date)
+            new_ws.write(self.qula+2, 1, date_sel, self.style_date)
+            new_ws.write(self.qula+2, 2, '', self.style_date)
+            
+            self.style_flag = not self.style_flag
     
             for j in range(length):                                                     #根据Style标记写入
-                if self.style_flag == 0:
+                if self.style_flag == False:
                     new_ws.write(j+self.qula+3, 1, tags[j].text, self.style_0)
-                    self.style_flag = 1
+                    self.style_flag = not self.style_flag
         
-                elif self.style_flag == 1:
+                elif self.style_flag == True:
                     new_ws.write(j+self.qula+3, 1, tags[j].text, self.style_1)
-                    self.style_flag = 0
+                    self.style_flag = not self.style_flag
             
-            self.qula += (length+4)
+            self.qula += (length+5)
                            
         print u"爬虫抓取完成"
         print ""
@@ -93,29 +110,35 @@ class TVPL_Spider:
         r = urllib2.Request(url, headers = headers)
         content = urllib2.urlopen(r).read()
         soup = BeautifulSoup(content, "lxml")
-        today = date.today()
         
         for dm in range(1, 8):
-            date_sel = today + timedelta(dm)
+            date_sel = self.today + datetime.timedelta(dm)
+            week_day = date_sel.weekday()
             rsl = soup.find(attrs={"id": "channellist"}).find_all(attrs={"date": date_sel})
             rsl_length = len(rsl)
+            
+            new_ws.write(self.qula+2, 0, self.week_id[week_day], self.style_date)
+            new_ws.write(self.qula+2, 1, date_sel, self.style_date)
+            new_ws.write(self.qula+2, 2, '', self.style_date)
+            
+            self.style_flag = not self.style_flag
 
             for i in range(rsl_length):
                 tags = rsl[i].find_all("li")
                 tags_length = len(tags)
 
                 for j in range(tags_length):
-                    if self.style_flag == 0:
+                    if self.style_flag == False:
                         new_ws.write(j+self.qula+3, 1, tags[j].text, self.style_0)
-                        self.style_flag = 1
+                        self.style_flag = not self.style_flag
 
-                    elif self.style_flag == 1:
+                    elif self.style_flag == True:
                         new_ws.write(j+self.qula+3, 1, tags[j].text, self.style_1)
-                        self.style_flag = 0
+                        self.style_flag = not self.style_flag
 
                 self.qula += tags_length
 
-            self.qula += 4
+            self.qula += 5
         
         print u"爬虫抓取完成"
         print ""
@@ -147,5 +170,4 @@ if __name__=="__main__":
         st()
    
       
-    
-        
+       
